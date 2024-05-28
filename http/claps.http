@@ -1,0 +1,23 @@
+### GET Claps
+GET {{apiUrl}}/claps
+
+> {%
+  client.test("Request is 200", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+  });
+%}
+
+### POST Claps
+POST {{apiUrl}}/claps
+Content-Type: application/json
+
+{
+    "userId": "1dbb7a99-3a8c-4a0f-bd60-28bc9d88aff3",
+    "initCount": 0
+}
+
+> {%
+  client.test("Request is 200", function() {
+    client.assert(response.status === 200, "Response status is not 200, but " + response.status);
+  });
+%}

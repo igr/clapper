@@ -1,0 +1,23 @@
+### POST User
+POST {{apiUrl}}/users
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "john.doe@igo.rs"
+}
+
+> {%
+  client.test("Request is 200", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+  });
+%}
+
+### GET Users
+GET {{apiUrl}}/users
+
+> {%
+  client.test("Request is 200", function() {
+    client.assert(response.status === 200, "Response status is not 200");
+  });
+%}
