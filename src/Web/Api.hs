@@ -10,7 +10,7 @@ module Web.Api
 where
 
 import Control.Monad.IO.Class (liftIO)
-import Database.Persist.Sql (ConnectionPool)
+import Database.Persist.Sql (ConnectionPool, SqlPersistM)
 import Db.Repository
 import Db.RunSql (runSql)
 import Domain.Clap
@@ -39,32 +39,35 @@ server pool =
     :<|> getClap
     :<|> incrementClap
   where
+    runDbAction :: SqlPersistM a -> Handler a
+    runDbAction action = liftIO $ runSql action pool
+
     getUsers :: Handler [User]
-    getUsers = liftIO $ flip runSql pool $ do
+    getUsers = runDbAction $ do
       fetchAllUsers
 
     postUser :: UserCreate -> Handler User
-    postUser user = liftIO $ flip runSql pool $ do
+    postUser user = runDbAction $ do
       storeUser user
 
     getUser :: PathUserId -> Handler (Maybe User)
-    getUser uid = liftIO $ flip runSql pool $ do
+    getUser uid = runDbAction $ do
       fetchUser $ extractUserId uid
 
     getClaps :: Handler [Clap]
-    getClaps = liftIO $ flip runSql pool $ do
+    getClaps = runDbAction $ do
       fetchAllClaps
 
     postClap :: ClapCreate -> Handler Clap
-    postClap clap = liftIO $ flip runSql pool $ do
+    postClap clap = runDbAction $ do
       storeClap clap
 
     getClap :: PathClapId -> Handler (Maybe Clap)
-    getClap cid = liftIO $ flip runSql pool $ do
+    getClap cid = runDbAction $ do
       fetchClap $ extractClapId cid
 
     incrementClap :: PathClapId -> Handler (Maybe Clap)
-    incrementClap cid = liftIO $ flip runSql pool $ do
+    incrementClap cid = runDbAction $ do
       -- >>= is used to chain the operations, handling Nothing automatically.
       fetchClap (extractClapId cid) >>= traverse updateAndReturn
       where
